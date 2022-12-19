@@ -75,6 +75,7 @@ struct Coffee: Codable, Identifiable {
     var name: String
     var ingredients: [String]
     var steps: [String]
+    var isFavorite: Bool = false
 }
 
 struct CoffeeData: Codable {
