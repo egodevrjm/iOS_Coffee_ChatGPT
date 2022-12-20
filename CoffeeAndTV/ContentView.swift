@@ -8,7 +8,12 @@ struct ContentView: View {
         NavigationView {
             List(coffeeList.coffees) { coffee in
                 NavigationLink(destination: CoffeeDetail(coffee: coffee)) {
-                    Text(coffee.name)
+                    HStack {
+                        Image("\(coffee.id)")
+                            .resizable()
+                            .frame(width: 50, height: 50)
+                        Text(coffee.name)
+                    }
                 }
             }
             .navigationBarTitle("Coffee Recipes")
@@ -27,12 +32,18 @@ struct FavoritesView: View {
     var body: some View {
         List(coffeeList.favorites) { coffee in
             NavigationLink(destination: CoffeeDetail(coffee: coffee)) {
-                Text(coffee.name)
+                HStack {
+                    Image("\(coffee.id)")
+                        .resizable()
+                        .frame(width: 50, height: 50)
+                    Text(coffee.name)
+                }
             }
         }
         .navigationBarTitle("Favorites")
     }
 }
+
 
 struct CoffeeDetail: View {
     @ObservedObject var coffee: Coffee
