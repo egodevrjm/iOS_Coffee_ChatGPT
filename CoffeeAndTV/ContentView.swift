@@ -35,21 +35,18 @@ struct FavoritesView: View {
 
 struct CoffeeDetail: View {
     @ObservedObject var coffee: Coffee
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            ZStack(alignment: .bottomLeading) {
-                Image("coffee")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxWidth: .infinity)
-                Text(coffee.name)
-                    .font(.title)
-                    .padding(16)
-                    .background(Color.black.opacity(0.5))
-                    .foregroundColor(.white)
-                    .alignmentGuide(.bottom, computeValue: { d in d[VerticalAlignment.bottom] })
-            }
+            Image("coffee")
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity)
+            Text(coffee.name)
+                .font(.title)
+                .padding(16)
+                .background(Color.black.opacity(0.5))
+                .foregroundColor(.white)
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Category: \(coffee.category)")
@@ -57,31 +54,62 @@ struct CoffeeDetail: View {
                     Text("Ingredients:")
                         .font(.headline)
                     ForEach(coffee.ingredients, id: \.self) { ingredient in
-                        Text("- \(ingredient)")
+                        HStack {
+                            Circle()
+                                .foregroundColor(.green)
+                                .frame(width: 10, height: 10)
+                            Text(ingredient)
+                        }
                     }
                     Text("Steps:")
                         .font(.headline)
                     ForEach(coffee.steps, id: \.self) { step in
-                        Text("- \(step)")
+                        HStack {
+                            Circle()
+                                .foregroundColor(.green)
+                                .frame(width: 10, height: 10)
+                            Text(step)
+                        }
                     }
                 }
-            }
-            HStack {
+            }.frame(maxWidth: .infinity, maxHeight: .infinity)
+            HStack(alignment: .center) {
                 if coffee.isFavorite {
                     Button(action: { self.coffee.isFavorite.toggle() }) {
                         Image(systemName: "star.fill")
                             .foregroundColor(.yellow)
+                            .font(.largeTitle)
                     }
                 } else {
                     Button(action: { self.coffee.isFavorite.toggle() }) {
                         Image(systemName: "star")
                             .foregroundColor(.gray)
+                            .font(.largeTitle)
                     }
                 }
-            }
+                Spacer()
+                   Button(action: {
+                       // Add code to share the coffee recipe here
+                       Button(action: {
+                           let activityViewController = UIActivityViewController(activityItems: ["Check out this coffee recipe: \(self.coffee.name)"], applicationActivities: nil)
+                           UIApplication.shared.windows.first?.rootViewController?.present(activityViewController, animated: true, completion: nil)
+                       }) {
+                           Image(systemName: "square.and.arrow.up")
+                               .foregroundColor(.blue)
+                               .font(.largeTitle)
+                       }
+
+                   }) {
+                       Image(systemName: "square.and.arrow.up")
+                           .foregroundColor(.blue)
+                           .font(.largeTitle)
+                   }
+            }.padding(.top, 16)
         }.padding(16)
     }
 }
+
+
 
 
 
