@@ -12,6 +12,7 @@ struct ContentView: View {
                         Image("\(coffee.id)")
                             .resizable()
                             .frame(width: 50, height: 50)
+                            .clipShape(Circle())
                         Text(coffee.name)
                     }
                 }
@@ -36,6 +37,7 @@ struct FavoritesView: View {
                     Image("\(coffee.id)")
                         .resizable()
                         .frame(width: 50, height: 50)
+                        .clipShape(Circle())
                     Text(coffee.name)
                 }
             }
