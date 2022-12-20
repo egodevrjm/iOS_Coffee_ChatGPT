@@ -1,4 +1,5 @@
 import SwiftUI
+import PDFKit
 
 struct ContentView: View {
     @ObservedObject var coffeeList = CoffeeList()
@@ -7,7 +8,13 @@ struct ContentView: View {
         NavigationView {
             List(coffeeList.coffees) { coffee in
                 NavigationLink(destination: CoffeeDetail(coffee: coffee)) {
-                    Text(coffee.name)
+                    HStack {
+                        Image("\(coffee.id)")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 50, height: 50)
+                        Text(coffee.name)
+                    }
                 }
             }
             .navigationBarTitle("Coffee Recipes")
@@ -26,12 +33,19 @@ struct FavoritesView: View {
     var body: some View {
         List(coffeeList.favorites) { coffee in
             NavigationLink(destination: CoffeeDetail(coffee: coffee)) {
-                Text(coffee.name)
+                HStack {
+                    Image("\(coffee.id)")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 50, height: 50)
+                    Text(coffee.name)
+                }
             }
         }
         .navigationBarTitle("Favorites")
     }
 }
+
 
 struct CoffeeDetail: View {
     @ObservedObject var coffee: Coffee
@@ -89,7 +103,17 @@ struct CoffeeDetail: View {
                 }
                 Spacer()
                 Button(action: {
-                    let activityViewController = UIActivityViewController(activityItems: ["Check out this coffee recipe: \(self.coffee.name)"], applicationActivities: nil)
+                    let recipeText = """
+                    Recipe for \(self.coffee.name):
+                    Category: \(self.coffee.category)
+                    Ingredients:
+                    """
+                    + self.coffee.ingredients.map { " - \($0)" }.joined(separator: "\n")
+                    + """
+                    Steps:
+                    """
+                    + self.coffee.steps.map { " - \($0)" }.joined(separator: "\n")
+                    let activityViewController = UIActivityViewController(activityItems: [recipeText], applicationActivities: nil)
                     UIApplication.shared.windows.first?.rootViewController?.present(activityViewController, animated: true, completion: nil)
                 }) {
                     Image(systemName: "square.and.arrow.up")
