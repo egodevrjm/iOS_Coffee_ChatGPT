@@ -38,7 +38,7 @@ struct CoffeeDetail: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Image("coffee")
+            Image("\(coffee.id)")
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: .infinity)
@@ -88,22 +88,15 @@ struct CoffeeDetail: View {
                     }
                 }
                 Spacer()
-                   Button(action: {
-                       // Add code to share the coffee recipe here
-                       Button(action: {
-                           let activityViewController = UIActivityViewController(activityItems: ["Check out this coffee recipe: \(self.coffee.name)"], applicationActivities: nil)
-                           UIApplication.shared.windows.first?.rootViewController?.present(activityViewController, animated: true, completion: nil)
-                       }) {
-                           Image(systemName: "square.and.arrow.up")
-                               .foregroundColor(.blue)
-                               .font(.largeTitle)
-                       }
+                Button(action: {
+                    let activityViewController = UIActivityViewController(activityItems: ["Check out this coffee recipe: \(self.coffee.name)"], applicationActivities: nil)
+                    UIApplication.shared.windows.first?.rootViewController?.present(activityViewController, animated: true, completion: nil)
+                }) {
+                    Image(systemName: "square.and.arrow.up")
+                        .foregroundColor(.blue)
+                        .font(.largeTitle)
+                }
 
-                   }) {
-                       Image(systemName: "square.and.arrow.up")
-                           .foregroundColor(.blue)
-                           .font(.largeTitle)
-                   }
             }.padding(.top, 16)
         }.padding(16)
     }
