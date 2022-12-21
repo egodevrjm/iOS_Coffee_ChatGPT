@@ -4,16 +4,40 @@ import PDFKit
 struct ContentView: View {
     @ObservedObject var coffeeList = CoffeeList()
 
+    // Add a searchTerm state variable
+    @State private var searchTerm = ""
+
     var body: some View {
         NavigationView {
-            List(coffeeList.coffees) { coffee in
-                NavigationLink(destination: CoffeeDetail(coffee: coffee)) {
-                    HStack {
-                        Image("\(coffee.id)")
-                            .resizable()
-                            .frame(width: 50, height: 50)
-                            .clipShape(Circle())
-                        Text(coffee.name)
+            // Add a TextField for the search input
+            VStack {
+                HStack {
+                    TextField("Search", text: $searchTerm)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                }
+                .padding(.horizontal)
+                
+                // Use the searchTerm to filter the list of coffee recipes
+                List {
+                    ForEach(Array(Set(coffeeList.coffees.filter {
+                        // Check if the search term is contained in the name or ingredients of the coffee recipe
+                        searchTerm.isEmpty || $0.name.lowercased().contains(searchTerm.lowercased()) || $0.ingredients.contains(where: { $0.lowercased().contains(searchTerm.lowercased()) })
+                    }.map { $0.category })).sorted(), id: \.self) { category in
+                        Section(header: Text(category)) {
+                            ForEach(coffeeList.coffees.filter {
+                                $0.category == category && (searchTerm.isEmpty || $0.name.lowercased().contains(searchTerm.lowercased()) || $0.ingredients.contains(where: { $0.lowercased().contains(searchTerm.lowercased()) }))
+                            }) { coffee in
+                                NavigationLink(destination: CoffeeDetail(coffee: coffee)) {
+                                    HStack {
+                                        Image("\(coffee.id)")
+                                            .resizable()
+                                            .frame(width: 50, height: 50)
+                                            .clipShape(Circle())
+                                        Text(coffee.name)
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -27,6 +51,9 @@ struct ContentView: View {
     }
 }
 
+
+
+
 struct FavoritesView: View {
     @ObservedObject var coffeeList: CoffeeList
 
@@ -37,7 +64,6 @@ struct FavoritesView: View {
                     Image("\(coffee.id)")
                         .resizable()
                         .frame(width: 50, height: 50)
-                        .clipShape(Circle())
                     Text(coffee.name)
                 }
             }
@@ -52,15 +78,32 @@ struct CoffeeDetail: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Image("\(coffee.id)")
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: .infinity)
-            Text(coffee.name)
-                .font(.title)
-                .padding(16)
-                .background(Color.black.opacity(0.5))
-                .foregroundColor(.white)
+            Spacer(minLength: 0)
+            
+            ZStack {
+                Image("\(coffee.id)")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity)
+                    .clipShape(Circle())
+
+                Rectangle()
+                    .foregroundColor(Color.black)
+                    .frame(maxWidth: .infinity)
+                    .clipShape(Circle())
+                    .opacity(0.5)
+
+
+                Text(coffee.name)
+                    .font(.title)
+                    .foregroundColor(.white)
+                    .padding(60)
+                    .shadow(color: .gray, radius: 2)
+            }
+
+
+
+
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Category: \(coffee.category)")
@@ -88,19 +131,33 @@ struct CoffeeDetail: View {
                 }
             }.frame(maxWidth: .infinity, maxHeight: .infinity)
             HStack(alignment: .center) {
-                if coffee.isFavorite {
-                    Button(action: { self.coffee.isFavorite.toggle() }) {
-                        Image(systemName: "star.fill")
-                            .foregroundColor(.yellow)
-                            .font(.largeTitle)
-                    }
-                } else {
-                    Button(action: { self.coffee.isFavorite.toggle() }) {
-                        Image(systemName: "star")
-                            .foregroundColor(.gray)
-                            .font(.largeTitle)
-                    }
-                }
+                        if coffee.isFavorite {
+                            Button(action: {
+                                self.coffee.isFavorite.toggle()
+                                // save the updated favorite status to UserDefaults
+                                let encoder = JSONEncoder()
+                                if let encodedCoffee = try? encoder.encode(self.coffee) {
+                                    UserDefaults.standard.set(encodedCoffee, forKey: "\(self.coffee.id)")
+                                }
+                            }) {
+                                Image(systemName: "star.fill")
+                                    .foregroundColor(.yellow)
+                                    .font(.largeTitle)
+                            }
+                        } else {
+                            Button(action: {
+                                self.coffee.isFavorite.toggle()
+                                // save the updated favorite status to UserDefaults
+                                let encoder = JSONEncoder()
+                                if let encodedCoffee = try? encoder.encode(self.coffee) {
+                                    UserDefaults.standard.set(encodedCoffee, forKey: "\(self.coffee.id)")
+                                }
+                            }) {
+                                Image(systemName: "star")
+                                    .foregroundColor(.gray)
+                                    .font(.largeTitle)
+                            }
+                        }
                 Spacer()
                 Button(action: {
                     let recipeText = """
